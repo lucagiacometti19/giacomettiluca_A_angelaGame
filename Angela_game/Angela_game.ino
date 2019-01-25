@@ -32,14 +32,8 @@ void inserisciMeta()
   appoggio = false;
 }
 
-void attendiPuntata()
+void checkFirstTurn()         //accetta la puntata in input del primo turno
 {
-  Serial.print("\r\n");
-  Serial.print("Inserire la puntata");
-  while(appoggio == false)
-  {
-    if(Serial.available() > 0 && turno == 0)
-    {
       int puntataScelta = Serial.readString().toInt();
       if(puntataScelta > -1 && puntataScelta < 7)         //puntata compresa tra 0 e 6 se è il primo turno
       {
@@ -53,10 +47,11 @@ void attendiPuntata()
         Serial.print("\r\n");            
         Serial.print("La prima puntata deve essere compresa tra 0 e 6");
       }
-    }
-    if (Serial.available() > 0 && turno != 0)
-    {
-      int puntataScelta = Serial.readString().toInt();
+}
+
+void checkTurn()        //acceta la puntata in input di tutti i turni eccetto il primo
+{
+  int puntataScelta = Serial.readString().toInt();
       if(puntataScelta > 0 && puntataScelta < 7 && puntataScelta != puntata && puntataScelta != 7-puntata)
       {
         puntata = puntataScelta;
@@ -69,6 +64,21 @@ void attendiPuntata()
         Serial.print("\r\n");
         Serial.print("La puntata deve essere compresa tra 1 e 6, diversa dalla puntata dell'utente precedente e al suo complementare a 7");
       }
+}
+
+void attendiPuntata()
+{
+  Serial.print("\r\n");
+  Serial.print("Inserire la puntata");
+  while(appoggio == false)
+  {
+    if(Serial.available() > 0 && turno == 0)
+    {
+      checkFirstTurn();
+    }
+    if (Serial.available() > 0 && turno != 0)
+    {
+        checkTurn(); 
     }
   }
   appoggio = false;
