@@ -1,13 +1,28 @@
-  int totale = 0;   //somma delle diverse puntate dei giocatori
-  int meta = 0;   //valore della meta
-  bool appoggio = false;  //appoggio per i vari loop del programma
-  int puntata = 0;  //valore della puntata
-  int turno = 0;    //turno
+#include <LiquidCrystal.h>
+  
+  int totale;   //somma delle diverse puntate dei giocatori
+  int meta;   //valore della meta
+  bool appoggio;  //appoggio per i vari loop del programma
+  int puntata;  //valore della puntata
+  int turno;   //turno
+  LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+   
 
+
+void setup() {
+  // put your setup code here, to run once:
+  totale = 0;
+  meta = 0;
+  appoggio = false;
+  puntata = 0;
+  turno = 0;
+  lcd.begin(16, 2);
+  lcd.clear();
+}
 
 void inserisciMeta()
 {
-  Serial.print("Inserire la meta compresa tra 30 e 100");
+  metaInfo();
   while(appoggio == false)
   {
     if(Serial.available() > 0)
@@ -22,15 +37,13 @@ void inserisciMeta()
           }
           else
           {
-            Serial.print("\r\n");
-            Serial.print("Meta non compresa tra 30 e 100!");
-            Serial.print("\r\n");
-            Serial.print("Inserire la meta compresa tra 30 e 100");
+            indexError();
           }
         }
   }
   appoggio = false;
 }
+
 
 void checkFirstTurn()         //accetta la puntata in input del primo turno
 {
@@ -127,12 +140,34 @@ void check()      //controlla se il gioco è finito, se si ha raggiunto o supera
     appoggio = true;
   }
 }
-
-void setup() {
-  // put your setup code here, to run once:
-  Serial.begin(9600);
+//----------------------------------------------------------------------------------------------------
+//METODI PER L'OUTPUT SERIALE LCD
+void indexError()
+{
+  lcd.clear();
+    lcd.print("Non è compreso");
+    lcd.setCursor(0,1);
+    lcd.print("tra 30 e 100!");
+    delay(1500);
+    lcd.setCursor(0,0);
+    lcd.print("Reinserire la");
+    lcd.setCursor(0,1);
+    lcd.print("meta");
 }
 
+void metaInfo(){
+  lcd.clear();
+  lcd.print("Inserire la meta");
+  lcd.setCursor(0,1);
+  lcd.print("compresa tra 30 e 100");
+  delay(1000);
+  for(int i = 0; i < 5; i++)
+  {
+  lcd.scrollDisplayLeft();
+  delay(400);
+  }
+}
+//----------------------------------------------------------------------------------------------------
 void loop() {
   // put your main code here, to run repeatedly:
       inserisciMeta();
