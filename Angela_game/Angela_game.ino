@@ -45,9 +45,9 @@ void inserisciMeta()
 }
 
 
-void checkFirstTurn()         //accetta la puntata in input del primo turno
+void checkFirstTurn(int puntataScelta)         //accetta la puntata in input del primo turno
 {
-      int puntataScelta = Serial.readString().toInt();
+      //int puntataScelta = Serial.readString().toInt();
       if(puntataScelta > -1 && puntataScelta < 7)         //puntata compresa tra 0 e 6 se è il primo turno
       {
         puntata = puntataScelta;
@@ -62,9 +62,9 @@ void checkFirstTurn()         //accetta la puntata in input del primo turno
       }
 }
 
-void checkTurn()        //acceta la puntata in input di tutti i turni eccetto il primo
+void checkTurn(int puntataScelta)        //acceta la puntata in input di tutti i turni eccetto il primo
 {
-  int puntataScelta = Serial.readString().toInt();
+  //int puntataScelta = Serial.readString().toInt();
       if(puntataScelta > 0 && puntataScelta < 7 && puntataScelta != puntata && puntataScelta != 7-puntata)
       {
         puntata = puntataScelta;
@@ -87,11 +87,13 @@ void attendiPuntata()
   {
     if(Serial.available() > 0 && turno == 0)
     {
-      checkFirstTurn();
+      int puntataScelta = Serial.readString().toInt();
+      checkFirstTurn(puntataScelta);
     }
     if (Serial.available() > 0 && turno != 0)
     {
-        checkTurn(); 
+        int puntataScelta = Serial.readString().toInt();
+        checkTurn(puntataScelta); 
     }
   }
   appoggio = false;
@@ -99,52 +101,13 @@ void attendiPuntata()
 
 void check()      //controlla se il gioco è finito, se si ha raggiunto o superato la meta
 {
-  if(totale > meta)
-  {
-    if(turno%2 == 0) //se è un numero pari è il turno del secondo utente
-    {
-      String firstMessage = "Hai superato la meta, ha vinto il secondo utente in ";
-      String secondMessage = firstMessage + turno;
-      String message = secondMessage + " turni!";
-      Serial.print("\r\n");
-      Serial.print(message);
-    }
-    else
-    {
-      String firstMessage = "Hai superato la meta, ha vinto il primo utente in ";
-      String secondMessage = firstMessage + turno;
-      String message = secondMessage + " turni!";
-      Serial.print("\r\n");
-      Serial.print(message);
-    }
-    appoggio = true;
-  }
-  else if(totale == meta)
-  {
-    if(turno%2 == 0)
-    {
-        String firstMessage = "Hai raggiunto la meta! Vince il secondo utente in ";
-        String secondMessage = firstMessage + turno;
-        String message = secondMessage + " turni!";
-        Serial.print("\r\n");
-        Serial.print(message);
-    }
-    else
-    {
-        String firstMessage = "Hai raggiunto la meta! Vince il primo utente in ";
-        String secondMessage = firstMessage + turno;
-        String message = secondMessage + " turni!";
-        Serial.print("\r\n");
-        Serial.print(message);
-    }
-    appoggio = true;
-  }
+  gameOverOutput((turno%2) + 1, totale == meta);
 }
 //----------------------------------------------------------------------------------------------------
-//METODI PER L'OUTPUT SERIALE LCD
+//METODI PER L'OUTPUT LCD
 void indexError()
 {
-  lcd.clear();
+    lcd.clear();
     lcd.print("Non è compreso");
     lcd.setCursor(0,1);
     lcd.print("tra 30 e 100!");
@@ -161,10 +124,57 @@ void metaInfo(){
   lcd.setCursor(0,1);
   lcd.print("compresa tra 30 e 100");
   delay(1000);
-  for(int i = 0; i < 5; i++)
+  int leftOrRight = 0;          //0 == left, 1 == right
+  while(true)
   {
-  lcd.scrollDisplayLeft();
-  delay(400);
+    for(int i = 0; i < 5; i++)
+    {
+      if(leftOrRight == 0)
+      {
+        lcd.scrollDisplayLeft();
+        delay(400);
+      }
+      else
+      {
+        lcd.scrollDisplayRight();
+        delay(400);
+      }
+    }
+    if(leftOrRight == 0){ leftOrRight = 1;}
+    else{leftOrRight = 0;}
+    delay(1600);
+  }
+}
+
+void gameOverOutput(int utente, bool controlToken)           //controlToken == false -> si ha superato il valore della meta
+{                                                           //controlToken == true -> il valore del totale corrispone al valore della meta
+  if(controlToken == false)
+  {
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Hai superato la");
+      lcd.setCursor(0, 1);
+      lcd.print("meta!");
+      delay(2000);
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Vincitore: utente " + utente);
+      lcd.setCursor(0, 1);
+      lcd.print("Durata match: " + turno);
+  }
+  else
+  {
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Hai raggiunto la");
+      lcd.setCursor(0, 1);
+      lcd.print("meta!");
+      delay(2000);
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Vincitore: utente " + utente);
+      lcd.setCursor(0, 1);
+      lcd.print("Durata match: " + turno);
   }
 }
 //----------------------------------------------------------------------------------------------------
