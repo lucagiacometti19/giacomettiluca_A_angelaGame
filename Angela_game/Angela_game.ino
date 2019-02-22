@@ -1,5 +1,7 @@
 #include <LiquidCrystal.h>
-  
+
+  const int buttonNumber = 9;
+  const int buttonNextTurn = 8;
   int totale;   //somma delle diverse puntate dei giocatori
   int meta;   //valore della meta
   bool appoggio;  //appoggio per i vari loop del programma
@@ -12,10 +14,12 @@
 void setup() {
   // put your setup code here, to run once:
   totale = 0;
-  meta = 0;
+  meta = 30;
   appoggio = false;
   puntata = 0;
   turno = 0;
+  pinMode(buttonNumber, INPUT);
+  pinMode(buttonNextTurn, INPUT);
   lcd.begin(16, 2);
   lcd.clear();
 }
@@ -44,6 +48,18 @@ void inserisciMeta()
   appoggio = false;
 }
 
+void getMetaValue()
+{
+  bool finito = false;
+  while(!finito)
+  {
+    if(digitalRead(buttonNumber) == HIGH)  //bottone premuto
+    {
+      meta = meta + 1;
+    }
+    if(digitalRead(buttonNextTurn))
+  }
+}
 
 void checkFirstTurn(int puntataScelta)         //accetta la puntata in input del primo turno
 {
