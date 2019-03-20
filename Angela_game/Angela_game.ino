@@ -1,7 +1,7 @@
 #include <LiquidCrystal.h>
 
-  const int buttonNumber = 9;
-  const int buttonNextTurn = 8;
+  const int buttonForward = 9;
+  const int buttonBackward = 8;
   int totale;   //somma delle diverse puntate dei giocatori
   int meta;   //valore della meta
   bool appoggio;  //appoggio per i vari loop del programma
@@ -18,8 +18,8 @@ void setup() {
   appoggio = false;
   puntata = 0;
   turno = 0;
-  pinMode(buttonNumber, INPUT);
-  pinMode(buttonNextTurn, INPUT);
+  pinMode(buttonForward, INPUT);
+  pinMode(buttonBackward, INPUT);
   lcd.begin(16, 2);
   lcd.clear();
 }
@@ -53,11 +53,16 @@ void getMetaValue()
   bool finito = false;
   while(!finito)
   {
-    if(digitalRead(buttonNumber) == HIGH)  //bottone premuto
+    if(digitalRead(buttonForward) == HIGH)  //bottone "avanti" premuto
     {
       meta = meta + 1;
+      finito = true;    //PROVA! VA TOLTO!
     }
-    if(digitalRead(buttonNextTurn))
+    if(digitalRead(buttonBackward == HIGH))  //bottone "indietro" premuto
+    {
+      meta = meta - 1; 
+    }
+    //METTO IL BOTTONE CONFERMA
   }
 }
 
@@ -73,8 +78,7 @@ void checkFirstTurn(int puntataScelta)         //accetta la puntata in input del
       }
       else
       {
-        Serial.print("\r\n");            
-        Serial.print("La prima puntata deve essere compresa tra 0 e 6");
+        firstWagerError();              //stampa l'errore commesso e che valori utilizzare per prima puntata
       }
 }
 
@@ -90,8 +94,7 @@ void checkTurn(int puntataScelta)        //acceta la puntata in input di tutti i
       }
       else
       {
-        Serial.print("\r\n");
-        Serial.print("La puntata deve essere compresa tra 1 e 6, diversa dalla puntata dell'utente precedente e al suo complementare a 7");
+        genericWagerError();
       }
 }
 
@@ -121,6 +124,17 @@ void check()      //controlla se il gioco è finito, se si ha raggiunto o supera
 }
 //----------------------------------------------------------------------------------------------------
 //METODI PER L'OUTPUT LCD
+void firstWagerError()
+{
+  Serial.print("\r\n");            
+  Serial.print("La prima puntata deve essere compresa tra 0 e 6");
+}
+
+void genericWagerError()
+{
+  Serial.print("\r\n");
+  Serial.print("La puntata deve essere compresa tra 1 e 6, diversa dalla puntata dell'utente precedente e al suo complementare a 7");
+}
 void indexError()
 {
     lcd.clear();
