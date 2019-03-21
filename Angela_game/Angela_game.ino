@@ -1,13 +1,16 @@
 #include <LiquidCrystal.h>
 
-  const int buttonForward = 9;
-  const int buttonBackward = 8;
+  const int buttonForward = 8;
+  const int buttonBackward = 9;
+  const int ledUtente1 = 2;
+  const int ledUtente2 = 3;
+  //secondo utente
   int totale;   //somma delle diverse puntate dei giocatori
   int meta;   //valore della meta
   bool appoggio;  //appoggio per i vari loop del programma
   int puntata;  //valore della puntata
   int turno;   //turno
-  LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+  LiquidCrystal lcd(12, 11, 7, 6, 5, 4);
    
 
 
@@ -20,6 +23,8 @@ void setup() {
   turno = 0;
   pinMode(buttonForward, INPUT);
   pinMode(buttonBackward, INPUT);
+  pinMode(ledUtente1, OUTPUT);
+  pinMode(ledUtente2, OUTPUT);
   lcd.begin(16, 2);
   lcd.clear();
 }
@@ -27,52 +32,47 @@ void setup() {
 void inserisciMeta()
 {
   metaInfo();
-  while(appoggio == false)
-  {
-    if(Serial.available() > 0)
-        {
-          int input = Serial.readString().toInt();
-          if(input > 30 && input < 100)
-          {
-            meta = input;
-            Serial.print("\r\n");
-            Serial.print(meta);
-            appoggio = true;
-          }
-          else
-          {
-            indexError();
-          }
-        }
-  }
-  appoggio = false;
+  getMetaValue();
 }
 
 void getMetaValue()
 {
   bool finito = false;
+  bool valueChanged = false;
   while(!finito)
   {
     if(digitalRead(buttonForward) == HIGH)  //bottone "avanti" premuto
     {
-      meta = meta + 1;
-      finito = true;    //PROVA! VA TOLTO!
+      meta++;
+      delay(250);
+      valueChanged = true;
+      finito = true;                                                                //PER PROVA, CANCELLARE SUBITO
     }
-    if(digitalRead(buttonBackward == HIGH))  //bottone "indietro" premuto
+    if(digitalRead(buttonBackward) == HIGH)  //bottone "indietro" premuto
     {
-      meta = meta - 1; 
+      meta--;
+      delay(250);
+      valueChanged = true; 
     }
-    //METTO IL BOTTONE CONFERMA
+    if(valueChanged)
+    {
+      valueChanged = false;
+      updateMeta();
+    }
+    //if(SENSORE DI MOVIMENTO ATTIVO)
+      //{
+        //CONTROLLO SE LA META E' TRA 30 E 100, POI FACCIO USCIRE DAL LOOP
+      //}
   }
 }
 
-void checkFirstTurn(int puntataScelta)         //accetta la puntata in input del primo turno
+void checkFirstTurn(int puntataScelta)         //accetta la puntata in input del primo turno e aggiorna il valore della puntata totale
 {
       //int puntataScelta = Serial.readString().toInt();
       if(puntataScelta > -1 && puntataScelta < 7)         //puntata compresa tra 0 e 6 se è il primo turno
       {
         puntata = puntataScelta;
-        totale = totale + puntataScelta;
+        totale = puntataScelta;
         appoggio = true;
         turno = turno + 1;
       }
@@ -82,7 +82,7 @@ void checkFirstTurn(int puntataScelta)         //accetta la puntata in input del
       }
 }
 
-void checkTurn(int puntataScelta)        //acceta la puntata in input di tutti i turni eccetto il primo
+void checkTurn(int puntataScelta)        //acceta la puntata in input di tutti i turni eccetto il primo e aggiorna il valore della puntata totale
 {
   //int puntataScelta = Serial.readString().toInt();
       if(puntataScelta > 0 && puntataScelta < 7 && puntataScelta != puntata && puntataScelta != 7-puntata)
@@ -100,40 +100,115 @@ void checkTurn(int puntataScelta)        //acceta la puntata in input di tutti i
 
 void attendiPuntata()
 {
-  Serial.print("\r\n");
-  Serial.print("Inserire la puntata");
-  while(appoggio == false)
+  insertWager();
+  if(turno%2 == 0)
   {
-    if(Serial.available() > 0 && turno == 0)
-    {
-      int puntataScelta = Serial.readString().toInt();
-      checkFirstTurn(puntataScelta);
-    }
-    if (Serial.available() > 0 && turno != 0)
-    {
-        int puntataScelta = Serial.readString().toInt();
-        checkTurn(puntataScelta); 
-    }
+    digitalWrite(ledUtente1, HIGH);
+    digitalWrite(ledUtente2, LOW);
   }
-  appoggio = false;
+  else
+  {
+    digitalWrite(ledUtente2, HIGH);
+    digitalWrite(ledUtente1, LOW);
+  }
+  int chosenWager = 0;
+  bool wagerUpdated = false;
+  while(!appoggio)
+  {
+    if(digitalRead(buttonForward) == HIGH)  //bottone "avanti" premuto
+    {
+      chosenWager++;
+      delay(250);
+      wagerUpdated = true;
+    }
+    if(digitalRead(buttonBackward) == HIGH)  //bottone "indietro" premuto
+    {
+      chosenWager--;
+      delay(250);
+      wagerUpdated = true; 
+    }
+    if(wagerUpdated)
+    {
+      updateWager(chosenWager);
+      wagerUpdated = false;
+    }
+    if(chosenWager == 6)                                           //PER PROVA, IMPLEMENTAREEEEEE
+    {
+      if(turno == 0)
+      {
+        checkFirstTurn(chosenWager);
+      }
+      else
+      {
+        checkTurn(chosenWager); 
+      }
+    }
+    
+  }
 }
 
 void check()      //controlla se il gioco è finito, se si ha raggiunto o superato la meta
 {
+  if(!(puntata < meta))
+  {
   gameOverOutput((turno%2) + 1, totale == meta);
+  }
+  else{appoggio = false;}
 }
 //----------------------------------------------------------------------------------------------------
 //METODI PER L'OUTPUT LCD
+void insertWager()
+{
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Inserire la");
+  lcd.setCursor(0,1);
+  lcd.print("prima puntata");
+}
+
 void firstWagerError()
 {
-  Serial.print("\r\n");            
-  Serial.print("La prima puntata deve essere compresa tra 0 e 6");
+  lcd.clear();
+  lcd.setCursor(0,0);            
+  lcd.print("La prima puntata");
+  lcd.setCursor(0,1);
+  lcd.print("deve essere tra 0 e 6");
+  int counter = 0;
+  int leftOrRight = 0;
+  while(counter <5)
+  {
+    scrollLcd(leftOrRight, 5);
+    counter++;
+    if(leftOrRight == 0){leftOrRight = 1;}
+    else{leftOrRight = 0;}
+  }
+  delay(500);
 }
 
 void genericWagerError()
 {
-  Serial.print("\r\n");
-  Serial.print("La puntata deve essere compresa tra 1 e 6, diversa dalla puntata dell'utente precedente e al suo complementare a 7");
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("La puntata non");
+  lcd.setCursor(0,1);
+  lcd.print("e' concessa");
+  delay(2000);
+}
+
+void updateMeta()
+{
+  lcd.clear();
+  lcd.setCursor(0,0);
+  String message = "Meta = ";
+  lcd.print(message + meta);
+}
+
+void updateWager(int chosenWager)
+{
+  lcd.clear();
+  lcd.setCursor(0,0);
+  String message = "Puntata = ";
+  lcd.print(message + chosenWager);
 }
 void indexError()
 {
@@ -152,12 +227,13 @@ void metaInfo(){
   lcd.clear();
   lcd.print("Inserire la meta");
   lcd.setCursor(0,1);
-  lcd.print("compresa tra 30 e 100");
+  lcd.print("  tra 30 e 100");
   delay(1000);
-  int leftOrRight = 0;          //0 == left, 1 == right
-  while(true)
-  {
-    for(int i = 0; i < 5; i++)
+}
+
+void scrollLcd(int leftOrRight, int numberOfScrolls)    //permette di spostare a destra o sinistra un messaggio su LCD per un numero di volte scelto (numberOfScrolls)
+{                                                       //0-->verso sinistra  1--> verso destra
+  for(int i = 0; i < numberOfScrolls; i++)
     {
       if(leftOrRight == 0)
       {
@@ -170,10 +246,6 @@ void metaInfo(){
         delay(400);
       }
     }
-    if(leftOrRight == 0){ leftOrRight = 1;}
-    else{leftOrRight = 0;}
-    delay(1600);
-  }
 }
 
 void gameOverOutput(int utente, bool controlToken)           //controlToken == false -> si ha superato il valore della meta
