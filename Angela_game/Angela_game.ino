@@ -4,6 +4,7 @@
   const int buttonBackward = 9;
   const int ledUtente1 = 2;
   const int ledUtente2 = 3;
+  const int Pir = 10;
   //secondo utente
   int totale;   //somma delle diverse puntate dei giocatori
   int meta;   //valore della meta
@@ -25,6 +26,7 @@ void setup() {
   pinMode(buttonBackward, INPUT);
   pinMode(ledUtente1, OUTPUT);
   pinMode(ledUtente2, OUTPUT);
+  pinMode(Pir, INPUT);
   lcd.begin(16, 2);
   lcd.clear();
 }
@@ -46,7 +48,6 @@ void getMetaValue()
       meta++;
       delay(250);
       valueChanged = true;
-      finito = true;                                                                //PER PROVA, CANCELLARE SUBITO
     }
     if(digitalRead(buttonBackward) == HIGH)  //bottone "indietro" premuto
     {
@@ -59,10 +60,21 @@ void getMetaValue()
       valueChanged = false;
       updateMeta();
     }
-    //if(SENSORE DI MOVIMENTO ATTIVO)
-      //{
-        //CONTROLLO SE LA META E' TRA 30 E 100, POI FACCIO USCIRE DAL LOOP
-      //}
+    if(digitalRead(Pir) == HIGH)
+      {
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("Confermato");
+        if(meta > 29 && meta < 100)
+        {
+          finito = true;
+        }
+        else
+        {
+          metaInfo();
+          delay(1000);
+        }
+      }
   }
 }
 
@@ -75,6 +87,7 @@ void checkFirstTurn(int puntataScelta)         //accetta la puntata in input del
         totale = puntataScelta;
         appoggio = true;
         turno = turno + 1;
+        confirmedMessage();
       }
       else
       {
@@ -91,6 +104,7 @@ void checkTurn(int puntataScelta)        //acceta la puntata in input di tutti i
         totale = totale + puntataScelta;
         appoggio = true;
         turno = turno + 1;
+        confirmedMessage(); 
       }
       else
       {
@@ -100,6 +114,10 @@ void checkTurn(int puntataScelta)        //acceta la puntata in input di tutti i
 
 void attendiPuntata()
 {
+  delay(1000);
+  lcd.clear();
+  lcd.print("toooo");
+  delay(2000);
   insertWager();
   if(turno%2 == 0)
   {
@@ -132,7 +150,7 @@ void attendiPuntata()
       updateWager(chosenWager);
       wagerUpdated = false;
     }
-    if(chosenWager == 6)                                           //PER PROVA, IMPLEMENTAREEEEEE
+    if(digitalRead(Pir) == HIGH)                                           //PER PROVA, IMPLEMENTAREEEEEE
     {
       if(turno == 0)
       {
@@ -142,6 +160,7 @@ void attendiPuntata()
       {
         checkTurn(chosenWager); 
       }
+
     }
     
   }
@@ -153,7 +172,7 @@ void check()      //controlla se il gioco è finito, se si ha raggiunto o supera
   {
   gameOverOutput((turno%2) + 1, totale == meta);
   }
-  else{appoggio = false;}
+  else{appoggio = false;}         //altrimenti continua il gioco
 }
 //----------------------------------------------------------------------------------------------------
 //METODI PER L'OUTPUT LCD
@@ -163,26 +182,37 @@ void insertWager()
   lcd.setCursor(0,0);
   lcd.print("Inserire la");
   lcd.setCursor(0,1);
-  lcd.print("prima puntata");
+  lcd.print("puntata");
 }
 
 void firstWagerError()
 {
   lcd.clear();
+  delay(10);
   lcd.setCursor(0,0);            
   lcd.print("La prima puntata");
   lcd.setCursor(0,1);
   lcd.print("deve essere tra 0 e 6");
   int counter = 0;
   int leftOrRight = 0;
-  while(counter <5)
+  while(counter <4)
   {
     scrollLcd(leftOrRight, 5);
     counter++;
     if(leftOrRight == 0){leftOrRight = 1;}
     else{leftOrRight = 0;}
+    delay(350);
   }
-  delay(500);
+}
+
+void confirmedMessage()
+{
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print("Confermato");
+      lcd.setCursor(0,1);
+      lcd.print(turno);
+      delay(1000);
 }
 
 void genericWagerError()
