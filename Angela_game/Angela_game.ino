@@ -115,9 +115,6 @@ void checkTurn(int puntataScelta)        //acceta la puntata in input di tutti i
 void attendiPuntata()
 {
   delay(1000);
-  lcd.clear();
-  lcd.print("toooo");
-  delay(2000);
   insertWager();
   if(turno%2 == 0)
   {
@@ -168,9 +165,13 @@ void attendiPuntata()
 
 void check()      //controlla se il gioco è finito, se si ha raggiunto o superato la meta
 {
-  if(!(puntata < meta))
+  if(puntata < meta)
   {
-  gameOverOutput((turno%2) + 1, totale == meta);
+    gameOverOutput((turno%2) + 1, false);
+  }
+  else if(puntata == meta)
+  {
+    gameOverOutput((turno%2) + 1, true);
   }
   else{appoggio = false;}         //altrimenti continua il gioco
 }
@@ -280,7 +281,7 @@ void scrollLcd(int leftOrRight, int numberOfScrolls)    //permette di spostare a
 
 void gameOverOutput(int utente, bool controlToken)           //controlToken == false -> si ha superato il valore della meta
 {                                                           //controlToken == true -> il valore del totale corrispone al valore della meta
-  if(controlToken == false)
+  if(!controlToken)
   {
       lcd.clear();
       lcd.setCursor(0, 0);
@@ -309,6 +310,14 @@ void gameOverOutput(int utente, bool controlToken)           //controlToken == f
       lcd.print("Durata match: " + turno);
   }
 }
+
+void playNewGame()
+{
+  if(digitalRead(Pir) == HIGH)
+  {
+    setup(); 
+  }
+}
 //----------------------------------------------------------------------------------------------------
 void loop() {
   // put your main code here, to run repeatedly:
@@ -320,6 +329,6 @@ void loop() {
       }
       while(appoggio == true)
       {
-        //per adesso blocco il programma in questo loop, dopo con arduino verrà implementato un bottone reset per iniziare una nuova partita
+        playNewGame();
       }
     }
