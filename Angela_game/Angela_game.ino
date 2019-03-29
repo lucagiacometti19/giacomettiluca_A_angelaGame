@@ -9,6 +9,7 @@
   int totale;   //somma delle diverse puntate dei giocatori
   int meta;   //valore della meta
   bool appoggio;  //appoggio per i vari loop del programma
+  bool pirActivated;  //gestire l'attivazione del sensore di movimento
   int puntata;  //valore della puntata
   int turno;   //turno
   LiquidCrystal lcd(12, 11, 7, 6, 5, 4);
@@ -20,6 +21,7 @@ void setup() {
   totale = 0;
   meta = 30;
   appoggio = false;
+  pirActivated = false;
   puntata = 0;
   turno = 0;
   pinMode(buttonForward, INPUT);
@@ -61,21 +63,33 @@ void getMetaValue()
       updateMeta();
     }
     if(digitalRead(Pir) == HIGH)
-      {
+    {
+        if(!pirActivated)
+        {
+          confirmMessage();
+          pirActivated = true;
+          if(meta > 29 && meta < 100)
+          {
+            delay(1000);
+            updateMeta();
+            finito = true;
+          }
+          else
+          {
+            metaInfo();
+            delay(1000);
+            pirActivated = false;
+          }
+        }
+    }
+  }
+}
+
+void confirmMessage()
+{
         lcd.clear();
         lcd.setCursor(0,0);
         lcd.print("Confermato");
-        if(meta > 29 && meta < 100)
-        {
-          finito = true;
-        }
-        else
-        {
-          metaInfo();
-          delay(1000);
-        }
-      }
-  }
 }
 
 void checkFirstTurn(int puntataScelta)         //accetta la puntata in input del primo turno e aggiorna il valore della puntata totale
@@ -97,7 +111,6 @@ void checkFirstTurn(int puntataScelta)         //accetta la puntata in input del
 
 void checkTurn(int puntataScelta)        //acceta la puntata in input di tutti i turni eccetto il primo e aggiorna il valore della puntata totale
 {
-  //int puntataScelta = Serial.readString().toInt();
       if(puntataScelta > 0 && puntataScelta < 7 && puntataScelta != puntata && puntataScelta != 7-puntata)
       {
         puntata = puntataScelta;
@@ -112,11 +125,21 @@ void checkTurn(int puntataScelta)        //acceta la puntata in input di tutti i
       }
 }
 
-void attendiPuntata()
+void bool puntataAccettabilePrimoTurno(int valore)
 {
-  delay(1000);
-  insertWager();
-  if(turno%2 == 0)
+  if(!(valore > -1 && valore <7))
+  {
+    return false;
+  }
+  else
+  {
+    
+  }
+}
+
+void refreshLed()
+{
+   if(turno%2 == 0)
   {
     digitalWrite(ledUtente1, HIGH);
     digitalWrite(ledUtente2, LOW);
@@ -126,8 +149,16 @@ void attendiPuntata()
     digitalWrite(ledUtente2, HIGH);
     digitalWrite(ledUtente1, LOW);
   }
+}
+
+void attendiPuntata()
+{
+  insertWager();
+  refreshLed();
+  delay(1500);
   int chosenWager = 0;
   bool wagerUpdated = false;
+  pirActivated = false;
   while(!appoggio)
   {
     if(digitalRead(buttonForward) == HIGH)  //bottone "avanti" premuto
@@ -149,15 +180,17 @@ void attendiPuntata()
     }
     if(digitalRead(Pir) == HIGH)                                           //PER PROVA, IMPLEMENTAREEEEEE
     {
-      if(turno == 0)
+      if(!pirActivated)
       {
-        checkFirstTurn(chosenWager);
+        if(turno == 0)
+        {
+          checkFirstTurn(chosenWager);
+        }
+        else
+        {
+          checkTurn(chosenWager); 
+        }
       }
-      else
-      {
-        checkTurn(chosenWager); 
-      }
-
     }
     
   }
@@ -165,15 +198,15 @@ void attendiPuntata()
 
 void check()      //controlla se il gioco è finito, se si ha raggiunto o superato la meta
 {
-  if(puntata < meta)
+  if(totale > meta)
   {
     gameOverOutput((turno%2) + 1, false);
   }
-  else if(puntata == meta)
+  else if(totale == meta)
   {
     gameOverOutput((turno%2) + 1, true);
   }
-  else{appoggio = false;}         //altrimenti continua il gioco
+  else{appoggio = false; pirActivated = false;}         //altrimenti continua il gioco
 }
 //----------------------------------------------------------------------------------------------------
 //METODI PER L'OUTPUT LCD
@@ -204,6 +237,7 @@ void firstWagerError()
     else{leftOrRight = 0;}
     delay(350);
   }
+  lcd.clear();
 }
 
 void confirmedMessage()
@@ -212,8 +246,12 @@ void confirmedMessage()
       lcd.setCursor(0,0);
       lcd.print("Confermato");
       lcd.setCursor(0,1);
-      lcd.print(turno);
+      String message = (String)totale;
+      String message1 = " / ";
+      String message2 = (String)meta;
+      lcd.print(message + message1 + message2);   //iwreogbs<
       delay(1000);
+      pirActivated = true;
 }
 
 void genericWagerError()
@@ -327,6 +365,7 @@ void loop() {
       attendiPuntata();
       check();
       }
+      delay(1500);
       while(appoggio == true)
       {
         playNewGame();
