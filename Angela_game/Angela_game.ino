@@ -6,6 +6,7 @@ const int ledUtente1 = 2;
 const int ledUtente2 = 3;
 const int Pir = 10;
 const int delay_ = 2000;
+
 //variabili globali
 int totale;   //somma delle diverse puntate dei giocatori
 int meta;   //valore della meta
@@ -30,6 +31,8 @@ void setup() {
   pinMode(ledUtente1, OUTPUT);
   pinMode(ledUtente2, OUTPUT);
   pinMode(Pir, INPUT);
+  digitalWrite(ledUtente1, LOW);
+  digitalWrite(ledUtente2, LOW);
   lcd.begin(16, 2);
   lcd.clear();
 }
@@ -137,7 +140,7 @@ void attendiPuntata()
 {
   insertWager();
   refreshLed();
-  delay(delay_-500);
+  delay(delay_-1000);
   int chosenWager = 0;
   bool wagerUpdated = false;
   pirActivated = false;
@@ -160,7 +163,7 @@ void attendiPuntata()
       updateWager(chosenWager);
       wagerUpdated = false;
     }
-    if (digitalRead(Pir) == HIGH)                                          //PER PROVA, IMPLEMENTAREEEEEE
+    if (digitalRead(Pir) == HIGH)                                          
     {
       if (!pirActivated)
       {
@@ -182,6 +185,10 @@ void check()      //controlla se il gioco è finito, se si ha raggiunto o supera
 {
   if (totale > meta)
   {
+    gameOverOutput((turno % 2)+1, false);
+  }
+  else if (totale == meta)
+  {
     int utente = (turno % 2) + 1;
     if(utente == 1)
     {
@@ -191,11 +198,7 @@ void check()      //controlla se il gioco è finito, se si ha raggiunto o supera
     {
       utente = 1;
     }
-    gameOverOutput(utente, false);
-  }
-  else if (totale == meta)
-  {
-    gameOverOutput((turno % 2) + 1, true);
+    gameOverOutput(utente, true);
   }
   else {
     appoggio = false;  //altrimenti continua il gioco
@@ -220,21 +223,21 @@ void insertWager()
   lcd.setCursor(0, 0);
   lcd.print("Inserire la");
   lcd.setCursor(0, 1);
-  lcd.print("puntata");
+  String message = "puntata    ";
+  String message1 = (String)totale;
+  String message2 = "/";
+  String message3 = (String)meta;
+  lcd.print(message + message1 + message2 + message3);
 }
 
-void preparingNewGame()
-{
-  lcd.clear();
-}
 void confirmedMessage()
 {
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("Confermato");
-  lcd.setCursor(0, 1);
+  lcd.setCursor(11, 1);
   String message = (String)totale;
-  String message1 = " / ";
+  String message1 = "/";
   String message2 = (String)meta;
   lcd.print(message + message1 + message2);
   delay(delay_-500);
