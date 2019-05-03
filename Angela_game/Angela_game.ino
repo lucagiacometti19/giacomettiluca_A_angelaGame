@@ -210,7 +210,8 @@ void playNewGame()
 {
   if (digitalRead(Pir) == HIGH)
   {
-    delay(delay_-500);
+    delay(delay_);
+    refreshing();
     setup();
   }
 }
@@ -289,6 +290,8 @@ void metaInfo() {
 
 void gameOverOutput(int utente, bool controlToken)           //controlToken == false -> si ha superato il valore della meta
 { //controlToken == true -> il valore del totale corrispone al valore della meta
+  digitalWrite(ledUtente1, LOW);
+  digitalWrite(ledUtente2, LOW);
   if (!controlToken)
   {
     lcd.clear();
@@ -329,6 +332,24 @@ void gameOverOutput(int utente, bool controlToken)           //controlToken == f
     lcd.setCursor(0,1);
     lcd.print((String)turno + " turni");
   }
+}
+
+void refreshing()
+{
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print(".");
+  delay(delay_/4);
+  lcd.clear();
+  lcd.print(".   .");
+  delay(delay_/4);
+  lcd.clear();
+  lcd.print(".   .   .");
+  delay(delay_/4);
+  lcd.clear();
+  lcd.print(".   .   .   .");
+  delay(delay_/4);
+  lcd.clear();
 }
 //****************************************************************************************************************************************************************************************
 
