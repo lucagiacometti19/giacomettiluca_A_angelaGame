@@ -35,6 +35,7 @@ void setup() {
   digitalWrite(ledUtente2, LOW);
   lcd.begin(16, 2);
   lcd.clear();
+  Greeting();
 }
 
 void loop() {
@@ -92,6 +93,8 @@ void getMetaValue()
     }
   }
 }
+
+
 
 
 void checkFirstTurn(int puntataScelta)         //accetta la puntata in input del primo turno e aggiorna il valore della puntata totale
@@ -254,6 +257,20 @@ void genericWagerError()
   delay(delay_/2);
 }
 
+void Greeting()
+{
+  lcd.setCursor(0,0);
+  lcd.print("  Angela game");
+  lcd.setCursor(0,1);
+  lcd.print("    by Luca");
+  delay(delay_);
+  for(int i = 0; i < 17; i++)
+  {
+    lcd.scrollDisplayRight();
+    delay(50);
+  }
+}
+
 void updateMeta()
 {
   lcd.clear();
@@ -298,11 +315,11 @@ void gameOverOutput(int utente, bool controlToken)           //controlToken == f
     lcd.setCursor(0, 0);
     lcd.print("Hai superato la");
     lcd.setCursor(0, 1);
-    lcd.print("meta!");
+    lcd.print("      meta!");
     delay(delay_);
     lcd.clear();
     lcd.setCursor(0, 0);
-    lcd.print("    Vincitore:");
+    lcd.print("   Vincitore:");
     lcd.setCursor(0,1);
     lcd.print("    Utente " + (String)utente);
     delay(delay_);
