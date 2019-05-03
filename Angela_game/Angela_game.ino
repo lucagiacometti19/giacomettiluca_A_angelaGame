@@ -26,8 +26,8 @@ void setup() {
   pirActivated = false;
   puntata = 0;
   turno = 0;
-  pinMode(buttonForward, INPUT);
-  pinMode(buttonBackward, INPUT);
+  pinMode(buttonForward, INPUT_PULLUP);
+  pinMode(buttonBackward, INPUT_PULLUP);
   pinMode(ledUtente1, OUTPUT);
   pinMode(ledUtente2, OUTPUT);
   pinMode(Pir, INPUT);
@@ -66,13 +66,13 @@ void getMetaValue()
   bool valueChanged = false;
   while (!finito)
   {
-    if (digitalRead(buttonForward) == HIGH && meta < 99) //bottone "avanti" premuto
+    if (digitalRead(buttonForward) == LOW && meta < 99) //bottone "avanti" premuto
     {
       meta++;
       delay(delay_/8);
       valueChanged = true;
     }
-    if (digitalRead(buttonBackward) == HIGH && meta > 30) //bottone "indietro" premuto
+    if (digitalRead(buttonBackward) == LOW && meta > 30) //bottone "indietro" premuto
     {
       meta--;
       delay(delay_/8);
@@ -146,13 +146,13 @@ void attendiPuntata()
   pirActivated = false;
   while (!appoggio)
   {
-    if (digitalRead(buttonForward) == HIGH && chosenWager < 6) //bottone "avanti" premuto
+    if (digitalRead(buttonForward) == LOW && chosenWager < 6) //bottone "avanti" premuto
     {
       chosenWager++;
       delay(delay_-1650);
       wagerUpdated = true;
     }
-    if (digitalRead(buttonBackward) == HIGH && chosenWager > 0) //bottone "indietro" premuto
+    if (digitalRead(buttonBackward) == LOW && chosenWager > 0) //bottone "indietro" premuto
     {
       chosenWager--;
       delay(delay_-1650);
@@ -301,11 +301,11 @@ void gameOverOutput(int utente, bool controlToken)           //controlToken == f
     lcd.setCursor(0, 0);
     lcd.print("    Vincitore:");
     lcd.setCursor(0,1);
-    lcd.print("    utente " + (String)utente);
+    lcd.print("    Utente " + (String)utente);
     delay(delay_);
     lcd.clear();
     lcd.setCursor(0, 0);
-    lcd.print("Durata match: ");
+    lcd.print("Durata match:");
     lcd.setCursor(0,1);
     lcd.print((String)turno + " turni");
   }
@@ -321,11 +321,13 @@ void gameOverOutput(int utente, bool controlToken)           //controlToken == f
     lcd.setCursor(0, 0);
     lcd.print("   Vincitore:");
     lcd.setCursor(0,1);
-    lcd.print("    utente " + (String)utente);
+    lcd.print("    Utente " + (String)utente);
     delay(delay_);
     lcd.clear();
     lcd.setCursor(0, 0);
-    lcd.print("Durata match: " + (String)turno);
+    lcd.print("Durata match:");
+    lcd.setCursor(0,1);
+    lcd.print((String)turno + " turni");
   }
 }
 //****************************************************************************************************************************************************************************************
