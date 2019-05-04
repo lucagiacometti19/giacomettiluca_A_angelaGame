@@ -1,2 +1,2 @@
 ## giacomettiluca_A_angelaGame
-NON ANCORA FINITO!
+Versione completa del gioco "Angela Game", un gioco di astuzia (e fortuna) adattato per arduino
