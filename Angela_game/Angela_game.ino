@@ -1,3 +1,5 @@
+//Luca Giacometti 2019
+
 #include <LiquidCrystal.h>
 //variabili globali costanti
 const int buttonForward = 8;
@@ -70,19 +72,18 @@ void getMetaValue()
     if (digitalRead(buttonForward) == LOW && meta < 99) //bottone "avanti" premuto
     {
       meta++;
-      delay(delay_/8);
       valueChanged = true;
     }
     if (digitalRead(buttonBackward) == LOW && meta > 30) //bottone "indietro" premuto
     {
       meta--;
-      delay(delay_/8);
       valueChanged = true;
     }
     if (valueChanged)
     {
       valueChanged = false;
       updateMeta();
+      delay(delay_/10);
     }
     if (digitalRead(Pir) == HIGH)
     {
@@ -93,9 +94,6 @@ void getMetaValue()
     }
   }
 }
-
-
-
 
 void checkFirstTurn(int puntataScelta)         //accetta la puntata in input del primo turno e aggiorna il valore della puntata totale
 {
@@ -211,7 +209,23 @@ void check()      //controlla se il gioco è finito, se si ha raggiunto o supera
 
 void playNewGame()
 {
-  if (digitalRead(Pir) == HIGH)
+  ANIM_M1();
+    if (digitalRead(Pir) == HIGH)
+  {
+    appoggio = false;
+  }
+  for(int i=0; i<2;i++)
+  { ANIM_CLOSE(); }
+    if (digitalRead(Pir) == HIGH)
+  {
+    appoggio = false;
+  }
+  ANIM_1();
+    if (digitalRead(Pir) == HIGH)
+  {
+     appoggio = false;
+  }
+  if(!appoggio)
   {
     delay(delay_);
     refreshing();
@@ -325,8 +339,8 @@ void gameOverOutput(int utente, bool controlToken)           //controlToken == f
     delay(delay_);
     lcd.clear();
     lcd.setCursor(0, 0);
-    lcd.print("Durata match:");
-    lcd.setCursor(0,1);
+    lcd.print(" Durata match:");
+    lcd.setCursor(4,1);
     lcd.print((String)turno + " turni");
   }
   else
@@ -345,28 +359,37 @@ void gameOverOutput(int utente, bool controlToken)           //controlToken == f
     delay(delay_);
     lcd.clear();
     lcd.setCursor(0, 0);
-    lcd.print("Durata match:");
-    lcd.setCursor(0,1);
+    lcd.print(" Durata match:");
+    lcd.setCursor(4,1);
     lcd.print((String)turno + " turni");
   }
+  delay(delay_ - 500);
+  lcd.clear();
 }
 
 void refreshing()
 {
   lcd.clear();
   lcd.setCursor(0,0);
-  lcd.print(".");
-  delay(delay_/4);
+  lcd.print(" .");
+  delay(delay_/5);
   lcd.clear();
-  lcd.print(".   .");
-  delay(delay_/4);
+  lcd.print(" .   .");
+  delay(delay_/5);
   lcd.clear();
-  lcd.print(".   .   .");
-  delay(delay_/4);
+  lcd.print(" .   .   .");
+  delay(delay_/5);
   lcd.clear();
-  lcd.print(".   .   .   .");
-  delay(delay_/4);
+  lcd.print(" .   .   .   .");
+  delay(delay_/5);
   lcd.clear();
+  /*
+  lcd.print(".  .  .  .  .");
+  delay(delay_/5);
+  lcd.clear();
+  lcd.print(".  .  .  .  .  .");
+  delay(delay_/5);
+  lcd.clear();*/
 }
 //****************************************************************************************************************************************************************************************
 
