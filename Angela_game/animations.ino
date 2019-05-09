@@ -9,7 +9,6 @@
 
 int x = 0;
 int y = 1;
-// the 8 arrays that form each segment of the custom numbers
 
 byte C8I[8] = {B00011,B00100,B00100,B01000,B01000,B10000,B10000,B10000};
 byte C8D[8] = {B11000,B00100,B00100,B00010,B00010,B00001,B00001,B00001};
