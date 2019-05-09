@@ -216,7 +216,7 @@ void playNewGame()
   }
   for(int i=0; i<2;i++)
   { ANIM_CLOSE(); }
-  if (digitalRead(Pir) == HIGH)
+    if (digitalRead(Pir) == HIGH)
   {
     appoggio = false;
   }
@@ -299,11 +299,6 @@ void updateWager(int chosenWager)
   lcd.setCursor(0, 0);
   String message = "Puntata = ";
   lcd.print(message + chosenWager);
-  lcd.setCursor(11, 1);
-  String value = (String)totale;
-  String slash = "/";
-  String total = (String)meta;
-  lcd.print(value + slash + total);
 }
 
 void confirmMessage()
@@ -388,6 +383,13 @@ void refreshing()
   lcd.print(" .   .   .   .");
   delay(delay_/5);
   lcd.clear();
+  /*
+  lcd.print(".  .  .  .  .");
+  delay(delay_/5);
+  lcd.clear();
+  lcd.print(".  .  .  .  .  .");
+  delay(delay_/5);
+  lcd.clear();*/
 }
 //****************************************************************************************************************************************************************************************
 
