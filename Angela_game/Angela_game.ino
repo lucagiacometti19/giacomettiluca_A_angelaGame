@@ -117,9 +117,10 @@ void checkTurn(int puntataScelta)        //acceta la puntata in input di tutti i
   else
   {
     genericWagerError();
-    lcd.clear();
+    /*lcd.clear();
     String message = "Puntata = ";
-    lcd.print(message + (String)puntataScelta);
+    lcd.print(message + (String)puntataScelta);*/
+    updateWager(puntataScelta);
   }
 }
 
@@ -299,6 +300,11 @@ void updateWager(int chosenWager)
   lcd.setCursor(0, 0);
   String message = "Puntata = ";
   lcd.print(message + chosenWager);
+  lcd.setCursor(11, 1);
+  String sTotale = (String)totale;
+  String slash = "/";
+  String sMeta = (String)meta;
+  lcd.print(sTotale + slash + sMeta);
 }
 
 void confirmMessage()
